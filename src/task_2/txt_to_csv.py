@@ -1,16 +1,30 @@
 import pandas as pd
 import os
 
+HEADER_ROW = [
+    "Date",
+    "Time",
+    "Global_active_power",
+    "Global_reactive_power",
+    "Voltage",
+    "Global_intensity",
+    "Sub_metering_1",
+    "Sub_metering_2",
+    "Sub_metering_3",
+]
+
 
 def read_and_split_data():
-    df = pd.read_csv("household_power_consumption.txt", sep=";", header=None)
-    chunks = 5
+    t = os.getcwd()
+    df = pd.read_csv(
+        "src/task_2/data/household_power_consumption.txt", sep=";", header=None
+    )
+    chunks = 10
     step = len(df) // chunks
-    df_i = df.iloc[:step, :]
-    df_i.to_csv("data/household_power_consumption_0.csv", index=False)
     for i in range(0, len(df), step):
         df_i = df.iloc[i : i + step, :]
-        df_i.to_csv(f"data/household_power_consumption_{i}.csv", index=False)
+        df_i.columns = HEADER_ROW
+        df_i.to_csv(f"src/task_2/data/household_power_consumption_{i}.csv", index=False)
 
 
 def read_household_power_consumption():
@@ -27,7 +41,7 @@ def read_household_power_consumption():
 
 
 if __name__ == "__main__":
-    # read_and_split_data()
-    df = read_household_power_consumption()
-    print(df.shape)
-    print(df.head())
+    read_and_split_data()
+    # df = read_household_power_consumption()
+    # print(df.shape)
+    # print(df.head())

@@ -4,7 +4,7 @@ Homework 2
 1. Use the dataset from UCI Machine Learning Repository: "Individual household electric
 power consumption" for performing time series analysis.
 https://archive.ics.uci.edu/dataset/235/individual+household+electric+power+consumption
-**RAN** (convert to csv / Parquet)
+**RAN** (convert to csv / Parquet) **Done**
 
 2. Perform Exploratory Data Analysis (EDA) of the dataset:
  - Visualize time series trends
@@ -25,14 +25,14 @@ periods:
  - Mean Squared Error (MSE)
  - Root Mean Squared Error (RMSE)
  - R-squared (R²) value
-**RAN** 
+**RAN**  **Done**
 
 5. Implement a Recurrent Neural Network (RNN) for power consumption prediction:
  - Preprocess data for RNN input
  - Design and train the RNN model
  - Make predictions and visualize results
  - Compare performance metrics with linear regression
-**RAN**
+**RAN** 
 
 6. Implement Long Short-Term Memory (LSTM) for power consumption prediction:
 DataScience2 lab

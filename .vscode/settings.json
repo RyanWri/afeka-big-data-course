@@ -1,3 +1,6 @@
 {
-    "jupyter.notebookFileRoot": "${fileDirname}"
+    "jupyter.notebookFileRoot": "${fileDirname}",
+    "python.analysis.extraPaths": [
+        "C:\\Afeka\\Afeka_DL_course_labs\\src\\"
+    ]
 }

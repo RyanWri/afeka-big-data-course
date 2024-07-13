@@ -1,5 +1,6 @@
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def run_model_evaluation(y_test, predictions) -> dict:
@@ -23,4 +24,13 @@ def run_model_evaluation(y_test, predictions) -> dict:
         "R-squared (R²) value": r2,
     }
 
+    plot_eval_results(y_test, predictions)
     return evaluation_metrics
+
+
+def plot_eval_results(y_test, predictions):
+    plt.figure(figsize=(10, 6))
+    plt.plot(y_test, label="True")
+    plt.plot(predictions, label="Predicted")
+    plt.legend()
+    plt.show()

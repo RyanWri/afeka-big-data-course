@@ -62,14 +62,14 @@ Homework 2
 - Modify up to 10% of the dataset to potentially improve prediction results
 - Retrain and evaluate all three models (RNN, LSTM, LSTM with Attention)
 - Compare the impact of data changes on each model's performance
-  **RAN**
+  **RAN** **Done**
 
 9. Data reduction experiment:
 
 - Remove up to 10% of the data randomly
 - Retrain and evaluate all three models
 - Compare how data reduction affects each model's performance
-  **RAN**
+  **RAN** **Done**
 
 10. Data resolution experiment:
 

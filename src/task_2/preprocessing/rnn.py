@@ -14,6 +14,9 @@ def create_sequences(data, seq_length):
 
 
 def preprocess(df: pd.DataFrame, sequence_length: int):
+    # Drop rows with missing values
+    df.replace("?", np.nan, inplace=True)
+    df.dropna(inplace=True)
     # Normalize the data
     scaler = MinMaxScaler()
     df[df.columns[1:]] = scaler.fit_transform(df[df.columns[1:]])

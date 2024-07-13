@@ -31,9 +31,18 @@ def augment_rnn_data(data):
     return np.concatenate([data, noise, scaled, shifted, windowed], axis=0)
 
 
-def reduce_random_data(data: pd.DataFrame, percentage=0.1):
+def reduce_data_randomly(X, y, reduction_factor=0.1):
     """
     Target: implement data reduction
     Hint: every file in data is exactly 10% of the data
     """
-    pass
+    total_samples = len(X)
+    reduced_samples = int(total_samples * (1 - reduction_factor))
+
+    indices = np.random.choice(
+        range(total_samples), size=reduced_samples, replace=False
+    )
+    X_reduced = X[indices]
+    y_reduced = y[indices]
+
+    return X_reduced, y_reduced

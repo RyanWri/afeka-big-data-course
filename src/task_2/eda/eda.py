@@ -18,9 +18,9 @@ async def load_and_process_chunk(file_path: str) -> pd.DataFrame:
 
     # Combine Date and Time into a single datetime column and set as index
     df["dt"] = pd.to_datetime(df["Date"] + " " + df["Time"], format="%d/%m/%Y %H:%M:%S")
-    df.set_index("dt", inplace=True)
+    df = df.set_index("dt")
     # Drop the original Date and Time columns
-    df.drop(columns=["Date", "Time"], inplace=True)
+    df = df.drop(columns=["Date", "Time"])
     # Drop rows with missing values
     df.replace("?", np.nan, inplace=True)
 
@@ -31,7 +31,7 @@ async def load_and_process_chunk(file_path: str) -> pd.DataFrame:
     # Handle missing values by filling them with the median of each column
     for column in df.columns:
         if df[column].isnull().sum() > 0:
-            df[column].fillna(df[column].median(), inplace=True)
+            df[column] = df[column].fillna(df[column].median())
 
     # Step 5: Identify and Handle Outliers
     # Detect and handle outliers by capping at the 99th percentile

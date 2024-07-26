@@ -13,7 +13,7 @@ Homework 2
 - Check for seasonality and cyclical patterns
 - Analyze distribution of power consumption
 - Identify and handle missing values or outliers
-  **SHANY**
+  **SHANY** **Done by RAN**
 
 3. Implement a linear regression model to predict power consumption for the last three time
    periods:

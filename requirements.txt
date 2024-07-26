@@ -13,3 +13,4 @@ pyclean==2.7.5
 pydantic
 statsmodels
 asyncio
+nest_asyncio

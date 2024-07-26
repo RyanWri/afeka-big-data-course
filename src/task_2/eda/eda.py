@@ -1,12 +1,18 @@
+import asyncio
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+from statsmodels.tsa.seasonal import seasonal_decompose
+import nest_asyncio
+
+# Allow nested use of asyncio.run()
+nest_asyncio.apply()
 
 
-def read_single_file(file_path: str) -> pd.DataFrame:
+async def load_and_process_chunk(file_path: str) -> pd.DataFrame:
     # Load a single chunk
-    chunk_file = "C:/Afeka/Afeka_DL_course_labs/src/task_2/data/household_power_consumption_0.csv"
     df = pd.read_csv(
-        chunk_file,
+        file_path,
         low_memory=False,
     )
 
@@ -35,59 +41,78 @@ def read_single_file(file_path: str) -> pd.DataFrame:
     return df
 
 
-# Display basic info about the DataFrame
-print(df.info())
-print(df.head())
+def plot_dataframe_stats(df: pd.DataFrame):
+    # Display basic info about the DataFrame
+    print(df.info())
+    print(df.head())
 
 
 # Step 2: Visualize Time Series Trends
-import matplotlib.pyplot as plt
+def visualize_time_series_trends(df: pd.DataFrame):
+    # Plot Global_active_power over time
+    plt.figure(figsize=(12, 6))
+    plt.plot(df["Global_active_power"], label="Global Active Power")
+    plt.xlabel("Time")
+    plt.ylabel("Global Active Power (kilowatts)")
+    plt.title("Global Active Power over Time")
+    plt.legend()
+    plt.show()
 
-# Plot Global_active_power over time
-plt.figure(figsize=(12, 6))
-plt.plot(df["Global_active_power"], label="Global Active Power")
-plt.xlabel("Time")
-plt.ylabel("Global Active Power (kilowatts)")
-plt.title("Global Active Power over Time")
-plt.legend()
-plt.show()
 
 # Step 3: Check for Seasonality and Cyclical Patterns
-from statsmodels.tsa.seasonal import seasonal_decompose
+def check_seasonality_and_cyclical_patterns(df: pd.DataFrame):
+    # Decompose the time series
+    decomposition = seasonal_decompose(
+        df["Global_active_power"].dropna(), model="additive", period=24 * 60
+    )
 
-# Decompose the time series
-decomposition = seasonal_decompose(
-    df["Global_active_power"].dropna(), model="additive", period=24 * 60
-)
+    # Plot decomposition results
+    plt.figure(figsize=(12, 8))
+    plt.subplot(411)
+    plt.plot(decomposition.observed, label="Observed")
+    plt.legend(loc="upper right")
+    plt.subplot(412)
+    plt.plot(decomposition.trend, label="Trend")
+    plt.legend(loc="upper right")
+    plt.subplot(413)
+    plt.plot(decomposition.seasonal, label="Seasonal")
+    plt.legend(loc="upper right")
+    plt.subplot(414)
+    plt.plot(decomposition.resid, label="Residual")
+    plt.legend(loc="upper right")
+    plt.show()
 
-# Plot decomposition results
-plt.figure(figsize=(12, 8))
-plt.subplot(411)
-plt.plot(decomposition.observed, label="Observed")
-plt.legend(loc="upper right")
-plt.subplot(412)
-plt.plot(decomposition.trend, label="Trend")
-plt.legend(loc="upper right")
-plt.subplot(413)
-plt.plot(decomposition.seasonal, label="Seasonal")
-plt.legend(loc="upper right")
-plt.subplot(414)
-plt.plot(decomposition.resid, label="Residual")
-plt.legend(loc="upper right")
-plt.show()
 
 # Step 4: Analyze Distribution of Power Consumption
-# Plot histogram
-plt.figure(figsize=(12, 6))
-df["Global_active_power"].hist(bins=50)
-plt.xlabel("Global Active Power (kilowatts)")
-plt.ylabel("Frequency")
-plt.title("Distribution of Global Active Power")
-plt.show()
+def analyze_distribution_of_power_consumption(df: pd.DataFrame):
+    # Plot histogram
+    plt.figure(figsize=(12, 6))
+    df["Global_active_power"].hist(bins=50)
+    plt.xlabel("Global Active Power (kilowatts)")
+    plt.ylabel("Frequency")
+    plt.title("Distribution of Global Active Power")
+    plt.show()
 
-# Plot boxplot
-plt.figure(figsize=(12, 6))
-df.boxplot(column="Global_active_power")
-plt.ylabel("Global Active Power (kilowatts)")
-plt.title("Boxplot of Global Active Power")
-plt.show()
+    # Plot boxplot
+    plt.figure(figsize=(12, 6))
+    df.boxplot(column="Global_active_power")
+    plt.ylabel("Global Active Power (kilowatts)")
+    plt.title("Boxplot of Global Active Power")
+    plt.show()
+
+
+async def main():
+    chunk_files = [
+        "C:/Afeka/Afeka_DL_course_labs/src/task_2/data/household_power_consumption_0.csv",
+        "C:/Afeka/Afeka_DL_course_labs/src/task_2/data/household_power_consumption_207526.csv",
+    ]  # Add paths to all chunk files
+    tasks = [load_and_process_chunk(file) for file in chunk_files]
+    results = await asyncio.gather(*tasks)
+
+    # Concatenate all chunks into a single DataFrame
+    full_df = pd.concat(results)
+    return full_df
+
+
+# Run the asynchronous processing
+full_df = asyncio.run(main())

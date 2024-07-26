@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from statsmodels.tsa.seasonal import seasonal_decompose
 import nest_asyncio
+import os
 
 # Allow nested use of asyncio.run()
 nest_asyncio.apply()
@@ -101,12 +102,18 @@ def analyze_distribution_of_power_consumption(df: pd.DataFrame):
     plt.show()
 
 
-async def main():
-    chunk_files = [
-        "C:/Afeka/Afeka_DL_course_labs/src/task_2/data/household_power_consumption_0.csv",
-        "C:/Afeka/Afeka_DL_course_labs/src/task_2/data/household_power_consumption_207526.csv",
-    ]  # Add paths to all chunk files
-    tasks = [load_and_process_chunk(file) for file in chunk_files]
+async def process_data_parallel():
+    rootdir = os.path.join(os.getcwd(), "data")
+
+    # Traverse Data Directory and get paths to all chunk files
+    file_names = []
+    for subdir, dirs, files in os.walk(rootdir):
+        for file in files:
+            file_names.append(os.path.join(subdir, file))
+            df = pd.read_csv(os.path.join(subdir, file), low_memory=False)
+
+    # Load and process each chunk
+    tasks = [load_and_process_chunk(file) for file in file_names]
     results = await asyncio.gather(*tasks)
 
     # Concatenate all chunks into a single DataFrame
@@ -115,4 +122,4 @@ async def main():
 
 
 # Run the asynchronous processing
-full_df = asyncio.run(main())
+full_df = asyncio.run(process_data_parallel())

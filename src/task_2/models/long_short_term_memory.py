@@ -12,7 +12,7 @@ def split_data_append_lagged_features(full_df, scaler) -> tuple:
     full_df["lag_3"] = full_df["Global_active_power"].shift(3)
 
     # Drop any rows with NaN values created by the shift operation
-    full_df.dropna(inplace=True)
+    full_df = full_df.dropna()
 
     # Define the target variable and features
     features = ["lag_1", "lag_2", "lag_3"]
@@ -42,7 +42,7 @@ def build_lstm_model(X_train):
     model = tf.keras.Sequential()
     model.add(
         tf.keras.layers.LSTM(
-            50, activation="relu", input_shape=(X_train.shape[1], X_train.shape[2])
+            12, activation="relu", input_shape=(X_train.shape[1], X_train.shape[2])
         )
     )
     model.add(tf.keras.layers.Dense(1))
@@ -50,7 +50,7 @@ def build_lstm_model(X_train):
 
     # Define the early stopping callback
     early_stopping = tf.keras.callbacks.EarlyStopping(
-        monitor="loss", patience=3, restore_best_weights=True
+        monitor="loss", patience=2, restore_best_weights=True, mode="min"
     )
 
     return model, early_stopping
@@ -107,10 +107,9 @@ def run_lstm_model_e2e(full_df):
     history = model.fit(
         X_train,
         y_train,
-        epochs=20,
+        epochs=10,
         batch_size=128,
         verbose=2,
-        validation_data=(X_test, y_test),
         shuffle=False,
         callbacks=[early_stopping],
     )

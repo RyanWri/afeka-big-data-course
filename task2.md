@@ -21,7 +21,7 @@ Homework 2
 - Split the data into training and testing sets
 - Prepare features (consider lag variables, time-based features)
 - Train the model and make predictions
-  **Shany**
+  **Shany** **Done by RAN**
 
 4. Evaluate the linear regression model using appropriate metrics:
 

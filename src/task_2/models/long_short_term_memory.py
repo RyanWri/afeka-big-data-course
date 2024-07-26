@@ -50,7 +50,7 @@ def build_lstm_model(X_train):
 
     # Define the early stopping callback
     early_stopping = tf.keras.callbacks.EarlyStopping(
-        monitor="val_loss", patience=10, restore_best_weights=True
+        monitor="loss", patience=3, restore_best_weights=True
     )
 
     return model, early_stopping
@@ -102,15 +102,15 @@ def run_lstm_model_e2e(full_df):
     )
 
     # build LSTM model
-    model, early_stopping = build_lstm_model(X_train, y_train, X_test, y_test)
+    model, early_stopping = build_lstm_model(X_train)
     # Train the LSTM model with early stopping
     history = model.fit(
         X_train,
         y_train,
-        epochs=100,
-        batch_size=32,
-        validation_data=(X_test, y_test),
+        epochs=20,
+        batch_size=128,
         verbose=2,
+        validation_data=(X_test, y_test),
         shuffle=False,
         callbacks=[early_stopping],
     )

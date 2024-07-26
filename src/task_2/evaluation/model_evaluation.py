@@ -24,7 +24,6 @@ def run_model_evaluation(y_test, predictions) -> dict:
         "R-squared (R²) value": r2,
     }
 
-    plot_eval_results(y_test, predictions)
     return evaluation_metrics
 
 
@@ -33,4 +32,17 @@ def plot_eval_results(y_test, predictions):
     plt.plot(y_test, label="True")
     plt.plot(predictions, label="Predicted")
     plt.legend()
+    plt.show()
+
+
+def plot_lstm_results(y_test, predictions):
+    # Plot predictions vs actual values
+    plt.figure(figsize=(12, 6))
+    plt.plot(y_test, label="Actual", color="blue")
+    plt.plot(predictions, label="Predicted", color="red")
+    plt.xlabel("Time")
+    plt.ylabel("Global Active Power (kilowatts)")
+    plt.title("Actual vs Predicted Global Active Power (LSTM)")
+    plt.legend()
+    plt.xticks(rotation=45)
     plt.show()

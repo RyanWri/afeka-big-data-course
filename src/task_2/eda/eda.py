@@ -103,7 +103,7 @@ def analyze_distribution_of_power_consumption(df: pd.DataFrame):
 
 
 async def process_data_parallel():
-    rootdir = os.path.join(os.getcwd(), "src", "task_2", "data")
+    rootdir = os.path.join(os.getcwd(), "data")
 
     # Traverse Data Directory and get paths to all chunk files
     file_names = []

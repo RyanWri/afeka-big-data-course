@@ -5,8 +5,8 @@
 
 import pandas as pd
 from models.rnn import build_rnn_model
-from preprocessing.rnn import preprocess as rnn_preprocess
-from preprocessing.rnn import train_test_split_sequence as rnn_split
+from src.task_2.preprocessing.sequence import preprocess as rnn_preprocess
+from src.task_2.preprocessing.sequence import train_test_split_sequence as rnn_split
 from evaluation.model_evaluation import run_model_evaluation
 import keras
 import numpy as np

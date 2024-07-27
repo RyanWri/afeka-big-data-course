@@ -1,18 +1,47 @@
-import json
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
 from keras import layers, Sequential, callbacks
-from src.task_2.preprocessing.rnn import preprocess as rnn_preprocess
-from src.task_2.preprocessing.rnn import train_test_split_sequence as rnn_split
 from src.task_2.evaluation.model_evaluation import (
     run_model_evaluation,
     plot_training_history,
 )
 
 
-def build_rnn_model(seq_length, X_train):
+def create_sequences(data, seq_length):
+    xs, ys = [], []
+    for i in range(0, len(data) - seq_length):
+        x = data[i : i + seq_length]
+        y = data[i + seq_length]
+        xs.append(x)
+        ys.append(y)
+    return np.array(xs), np.array(ys)
+
+
+def rnn_preprocess(df: pd.DataFrame, sequence_length: int):
+    # Drop rows with missing values
+    df = df.replace("?", np.nan)
+    df = df.dropna()
+    # Normalize the data
+    scaler = MinMaxScaler()
+    df[df.columns[1:]] = scaler.fit_transform(df[df.columns[1:]])
+    # Using 'Global_active_power' as the target variable
+    data = df[["Global_active_power"]].values
+    X, y = create_sequences(data, sequence_length)
+
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+    return X_train, X_test, y_train, y_test
+
+
+def build_rnn_model(seq_length):
     # Build the RNN model
     rnn_model = Sequential()
     rnn_model.add(
-        layers.SimpleRNN(4, return_sequences=False, input_shape=(seq_length, 1))
+        layers.SimpleRNN(100, return_sequences=False, input_shape=(seq_length, 1))
     )
     rnn_model.add(layers.Dense(1))
 
@@ -25,19 +54,18 @@ def build_rnn_model(seq_length, X_train):
     return rnn_model
 
 
-def run_rnn_model_e2e(full_df, epochs=3, batch_size=128):
-    sequence_length = 64
-    X, y = rnn_preprocess(full_df, sequence_length)
-    X_train, X_test, y_train, y_test = rnn_split(X, y)
-    rnn_model = build_rnn_model(sequence_length, X_train)
+def run_rnn_model_e2e(full_df):
+    sequence_length = 60
+    X_train, X_test, y_train, y_test = rnn_preprocess(full_df, sequence_length)
+    rnn_model = build_rnn_model(sequence_length)
     early_stopping = callbacks.EarlyStopping(
-        monitor="loss", patience=2, mode="min", restore_best_weights=True
+        monitor="loss", patience=2, restore_best_weights=True
     )
     history = rnn_model.fit(
         X_train,
         y_train,
-        epochs,
-        batch_size,
+        epochs=20,
+        batch_size=64,
         callbacks=[early_stopping],
     )
 
@@ -50,4 +78,4 @@ def run_rnn_model_e2e(full_df, epochs=3, batch_size=128):
     predictions = rnn_model.predict(X_test)
 
     rnn_results = run_model_evaluation(y_test, predictions)
-    print(json.dumps(rnn_results, indent=1))
+    return rnn_results

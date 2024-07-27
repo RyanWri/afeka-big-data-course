@@ -46,3 +46,14 @@ def plot_lstm_results(y_test, predictions):
     plt.legend()
     plt.xticks(rotation=45)
     plt.show()
+
+
+def plot_training_history(history):
+    # Plot the training history
+    plt.figure(figsize=(12, 6))
+    plt.plot(history.history["loss"], label="Training Loss")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.title("Training Loss Over Epochs")
+    plt.legend()
+    plt.show()

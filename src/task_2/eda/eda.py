@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from statsmodels.tsa.seasonal import seasonal_decompose
 import nest_asyncio
+import os
 
 # Allow nested use of asyncio.run()
 nest_asyncio.apply()
@@ -18,9 +19,9 @@ async def load_and_process_chunk(file_path: str) -> pd.DataFrame:
 
     # Combine Date and Time into a single datetime column and set as index
     df["dt"] = pd.to_datetime(df["Date"] + " " + df["Time"], format="%d/%m/%Y %H:%M:%S")
-    df.set_index("dt", inplace=True)
+    df = df.set_index("dt")
     # Drop the original Date and Time columns
-    df.drop(columns=["Date", "Time"], inplace=True)
+    df = df.drop(columns=["Date", "Time"])
     # Drop rows with missing values
     df.replace("?", np.nan, inplace=True)
 
@@ -31,7 +32,7 @@ async def load_and_process_chunk(file_path: str) -> pd.DataFrame:
     # Handle missing values by filling them with the median of each column
     for column in df.columns:
         if df[column].isnull().sum() > 0:
-            df[column].fillna(df[column].median(), inplace=True)
+            df[column] = df[column].fillna(df[column].median())
 
     # Step 5: Identify and Handle Outliers
     # Detect and handle outliers by capping at the 99th percentile
@@ -101,12 +102,17 @@ def analyze_distribution_of_power_consumption(df: pd.DataFrame):
     plt.show()
 
 
-async def main():
-    chunk_files = [
-        "C:/Afeka/Afeka_DL_course_labs/src/task_2/data/household_power_consumption_0.csv",
-        "C:/Afeka/Afeka_DL_course_labs/src/task_2/data/household_power_consumption_207526.csv",
-    ]  # Add paths to all chunk files
-    tasks = [load_and_process_chunk(file) for file in chunk_files]
+async def process_data_parallel():
+    rootdir = os.path.join(os.getcwd(), "src", "task_2", "data")
+
+    # Traverse Data Directory and get paths to all chunk files
+    file_names = []
+    for subdir, dirs, files in os.walk(rootdir):
+        for file in files:
+            file_names.append(os.path.join(subdir, file))
+
+    # Load and process each chunk
+    tasks = [load_and_process_chunk(file) for file in file_names]
     results = await asyncio.gather(*tasks)
 
     # Concatenate all chunks into a single DataFrame
@@ -115,4 +121,4 @@ async def main():
 
 
 # Run the asynchronous processing
-full_df = asyncio.run(main())
+full_df = asyncio.run(process_data_parallel())

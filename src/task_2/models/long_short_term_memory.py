@@ -3,6 +3,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
+from src.task_2.evaluation.model_evaluation import plot_training_history
 
 
 def split_data_append_lagged_features(full_df, scaler) -> tuple:
@@ -12,7 +13,7 @@ def split_data_append_lagged_features(full_df, scaler) -> tuple:
     full_df["lag_3"] = full_df["Global_active_power"].shift(3)
 
     # Drop any rows with NaN values created by the shift operation
-    full_df.dropna(inplace=True)
+    full_df = full_df.dropna()
 
     # Define the target variable and features
     features = ["lag_1", "lag_2", "lag_3"]
@@ -42,7 +43,7 @@ def build_lstm_model(X_train):
     model = tf.keras.Sequential()
     model.add(
         tf.keras.layers.LSTM(
-            50, activation="relu", input_shape=(X_train.shape[1], X_train.shape[2])
+            12, activation="relu", input_shape=(X_train.shape[1], X_train.shape[2])
         )
     )
     model.add(tf.keras.layers.Dense(1))
@@ -50,7 +51,7 @@ def build_lstm_model(X_train):
 
     # Define the early stopping callback
     early_stopping = tf.keras.callbacks.EarlyStopping(
-        monitor="val_loss", patience=10, restore_best_weights=True
+        monitor="loss", patience=2, restore_best_weights=True, mode="min"
     )
 
     return model, early_stopping
@@ -80,19 +81,7 @@ def plot_lstm_results(y_test, predictions):
     plt.show()
 
 
-def plot_training_history(history):
-    # Plot the training history
-    plt.figure(figsize=(12, 6))
-    plt.plot(history.history["loss"], label="Training Loss")
-    plt.plot(history.history["val_loss"], label="Validation Loss")
-    plt.xlabel("Epoch")
-    plt.ylabel("Loss")
-    plt.title("Training and Validation Loss Over Epochs")
-    plt.legend()
-    plt.show()
-
-
-def run_lstm_model_e2e(full_df):
+def run_lstm_model_e2e(full_df, epochs=6, batch_size=128):
     # Scale the data
     scaler = MinMaxScaler()
 
@@ -102,14 +91,13 @@ def run_lstm_model_e2e(full_df):
     )
 
     # build LSTM model
-    model, early_stopping = build_lstm_model(X_train, y_train, X_test, y_test)
+    model, early_stopping = build_lstm_model(X_train)
     # Train the LSTM model with early stopping
     history = model.fit(
         X_train,
         y_train,
-        epochs=100,
-        batch_size=32,
-        validation_data=(X_test, y_test),
+        epochs,
+        batch_size,
         verbose=2,
         shuffle=False,
         callbacks=[early_stopping],

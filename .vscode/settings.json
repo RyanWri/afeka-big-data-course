@@ -1,4 +1,4 @@
 {
-  "jupyter.notebookFileRoot": "${fileDirname}",
-  "python.analysis.extraPaths": ["C:/Afeka/Afeka_DL_course_labs/src/"]
+  "jupyter.notebookFileRoot": "C:/Afeka/Afeka_DL_course_labs/",
+  "python.analysis.extraPaths": ["C:/Afeka/Afeka_DL_course_labs/"]
 }

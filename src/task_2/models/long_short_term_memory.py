@@ -3,6 +3,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
+from src.task_2.evaluation.model_evaluation import plot_training_history
 
 
 def split_data_append_lagged_features(full_df, scaler) -> tuple:
@@ -80,19 +81,7 @@ def plot_lstm_results(y_test, predictions):
     plt.show()
 
 
-def plot_training_history(history):
-    # Plot the training history
-    plt.figure(figsize=(12, 6))
-    plt.plot(history.history["loss"], label="Training Loss")
-    plt.plot(history.history["val_loss"], label="Validation Loss")
-    plt.xlabel("Epoch")
-    plt.ylabel("Loss")
-    plt.title("Training and Validation Loss Over Epochs")
-    plt.legend()
-    plt.show()
-
-
-def run_lstm_model_e2e(full_df):
+def run_lstm_model_e2e(full_df, epochs=6, batch_size=128):
     # Scale the data
     scaler = MinMaxScaler()
 
@@ -107,8 +96,8 @@ def run_lstm_model_e2e(full_df):
     history = model.fit(
         X_train,
         y_train,
-        epochs=10,
-        batch_size=128,
+        epochs,
+        batch_size,
         verbose=2,
         shuffle=False,
         callbacks=[early_stopping],

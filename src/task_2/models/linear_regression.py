@@ -1,5 +1,5 @@
 from sklearn.linear_model import LinearRegression
-from evaluation.model_evaluation import run_model_evaluation
+from src.task_2.evaluation.model_evaluation import run_model_evaluation
 from sklearn.model_selection import train_test_split
 
 

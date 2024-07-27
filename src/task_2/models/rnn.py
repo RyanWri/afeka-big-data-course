@@ -2,7 +2,10 @@ import json
 from keras import layers, Sequential, callbacks
 from src.task_2.preprocessing.rnn import preprocess as rnn_preprocess
 from src.task_2.preprocessing.rnn import train_test_split_sequence as rnn_split
-from src.task_2.evaluation.model_evaluation import run_model_evaluation
+from src.task_2.evaluation.model_evaluation import (
+    run_model_evaluation,
+    plot_training_history,
+)
 
 
 def build_rnn_model(seq_length, X_train):
@@ -22,8 +25,8 @@ def build_rnn_model(seq_length, X_train):
     return rnn_model
 
 
-def run_rnn_model_e2e(full_df):
-    sequence_length = 120
+def run_rnn_model_e2e(full_df, epochs=3, batch_size=128):
+    sequence_length = 64
     X, y = rnn_preprocess(full_df, sequence_length)
     X_train, X_test, y_train, y_test = rnn_split(X, y)
     rnn_model = build_rnn_model(sequence_length, X_train)
@@ -33,10 +36,12 @@ def run_rnn_model_e2e(full_df):
     history = rnn_model.fit(
         X_train,
         y_train,
-        epochs=2,
-        batch_size=256,
+        epochs,
+        batch_size,
         callbacks=[early_stopping],
     )
+
+    plot_training_history(history)
 
     # Evaluate the model
     loss = rnn_model.evaluate(X_test, y_test)

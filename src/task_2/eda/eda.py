@@ -24,6 +24,7 @@ async def load_and_process_chunk(file_path: str) -> pd.DataFrame:
     df = df.drop(columns=["Date", "Time"])
     # Drop rows with missing values
     df.replace("?", np.nan, inplace=True)
+    df.drop(index=df[df.isnull().any(axis=1)].index, inplace=True)
 
     # set all columns as float
     for col in df.columns:

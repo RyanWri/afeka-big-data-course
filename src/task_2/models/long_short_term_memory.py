@@ -11,13 +11,12 @@ def split_data_append_lagged_features(full_df, scaler) -> tuple:
     # Prepare the data with lagged features
     full_df["lag_1"] = full_df["Global_active_power"].shift(1)
     full_df["lag_2"] = full_df["Global_active_power"].shift(2)
-    full_df["lag_3"] = full_df["Global_active_power"].shift(3)
 
     # Drop any rows with NaN values created by the shift operation
     full_df = full_df.dropna()
 
     # Define the target variable and features
-    features = ["lag_1", "lag_2", "lag_3"]
+    features = ["lag_1", "lag_2"]
     X = full_df[features].values
     y = full_df["Global_active_power"].values
 
@@ -39,7 +38,7 @@ def split_data_append_lagged_features(full_df, scaler) -> tuple:
     return X_train, X_test, y_train, y_test
 
 
-def build_lstm_model(X_train, attention_enabled):
+def build_lstm_model(X_train):
     # Design the LSTM model
     model = Sequential()
     model.add(
@@ -52,11 +51,6 @@ def build_lstm_model(X_train, attention_enabled):
     )
     model.add(layers.BatchNormalization())
     model.add(layers.Dropout(0.2))
-
-    if attention_enabled:
-        # Add Attention layer
-        model.add(layers.Attention())
-
     model.add(layers.LSTM(20, activation="relu"))
     model.add(layers.BatchNormalization())
     model.add(layers.Dropout(0.2))
@@ -95,7 +89,7 @@ def plot_lstm_results(y_test, predictions):
     plt.show()
 
 
-def run_lstm_model_e2e(full_df, attention_enabled=False):
+def run_lstm_model_e2e(full_df):
     # Scale the data
     scaler = MinMaxScaler()
 
@@ -105,9 +99,7 @@ def run_lstm_model_e2e(full_df, attention_enabled=False):
     )
 
     # build LSTM model
-    model, early_stopping = build_lstm_model(
-        X_train, attention_enabled=attention_enabled
-    )
+    model, early_stopping = build_lstm_model(X_train)
     # Train the LSTM model with early stopping
     history = model.fit(
         X_train,

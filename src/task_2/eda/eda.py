@@ -22,17 +22,14 @@ async def load_and_process_chunk(file_path: str) -> pd.DataFrame:
     df = df.set_index("dt")
     # Drop the original Date and Time columns
     df = df.drop(columns=["Date", "Time"])
-    # Drop rows with missing values
-    df.replace("?", np.nan, inplace=True)
+
+    # Handle missing values by removal
+    df = df.replace(["?", np.inf, -np.inf], np.nan)
+    df = df.dropna()
 
     # set all columns as float
     for col in df.columns:
         df[col] = df[col].astype("float64")
-
-    # Handle missing values by filling them with the median of each column
-    for column in df.columns:
-        if df[column].isnull().sum() > 0:
-            df[column] = df[column].fillna(df[column].median())
 
     # Step 5: Identify and Handle Outliers
     # Detect and handle outliers by capping at the 99th percentile

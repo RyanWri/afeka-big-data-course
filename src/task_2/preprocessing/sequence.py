@@ -27,6 +27,15 @@ def create_sequences(data, seq_length):
     return np.array(X), np.array(y)
 
 
+def create_sequences_x_and_y(data, target, seq_length):
+    X, y = [], []
+    for i in range(len(data) - seq_length - 1):
+        a = data[i : (i + seq_length), 0]
+        X.append(a)
+        y.append(target[i + seq_length, 0])
+    return np.array(X), np.array(y)
+
+
 def preprocess_sequence(df: pd.DataFrame, sequence_length: int):
     # Scale the data
     scaler = MinMaxScaler()

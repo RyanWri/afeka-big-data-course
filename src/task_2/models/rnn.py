@@ -24,7 +24,7 @@ def rnn_preprocess(df: pd.DataFrame, sequence_length: int):
     df = df.replace("?", np.nan)
     df = df.dropna()
     # Normalize the data
-    scaler = MinMaxScaler()
+    scaler = MinMaxScaler(feature_range=(0, 1))
     df[df.columns[1:]] = scaler.fit_transform(df[df.columns[1:]])
     # Using 'Global_active_power' as the target variable
     data = df[["Global_active_power"]].values
@@ -55,7 +55,7 @@ def build_rnn_model(seq_length):
 
 
 def run_rnn_model_e2e(full_df):
-    sequence_length = 60
+    sequence_length = 24
     X_train, X_test, y_train, y_test = rnn_preprocess(full_df, sequence_length)
     rnn_model = build_rnn_model(sequence_length)
     early_stopping = callbacks.EarlyStopping(

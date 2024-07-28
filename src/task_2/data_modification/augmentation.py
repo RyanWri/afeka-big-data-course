@@ -19,7 +19,7 @@ def window_slicing(data, slice_factor=5):
     return np.array([np.roll(x, -slice_factor) for x in data])
 
 
-def augment_rnn_data(data):
+def augment_sequence_data(data, y):
     """
     Target: implement data augmentation
     Hint: you can use add_noise, scale_data, shift_data, window_slicing
@@ -28,7 +28,9 @@ def augment_rnn_data(data):
     scaled = scale_data(data)
     shifted = shift_data(data)
     windowed = window_slicing(data)
-    return np.concatenate([data, noise, scaled, shifted, windowed], axis=0)
+    augmented_data = np.concatenate([data, noise, scaled, shifted, windowed], axis=0)
+    augmented_labels = np.tile(y, 5)  # Repeat y to match the augmented X
+    return augmented_data, augmented_labels
 
 
 def reduce_data_randomly(X, y, reduction_factor=0.1):

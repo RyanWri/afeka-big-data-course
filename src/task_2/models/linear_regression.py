@@ -1,5 +1,8 @@
 from sklearn.linear_model import LinearRegression
-from src.task_2.evaluation.model_evaluation import run_model_evaluation
+from src.task_2.evaluation.model_evaluation import (
+    run_model_evaluation,
+    plot_eval_results,
+)
 from sklearn.model_selection import train_test_split
 
 
@@ -35,3 +38,16 @@ def run_linear_regression(X_train, y_train, X_test, y_test):
     linear_reg.fit(X_train, y_train)
 
     return linear_reg
+
+
+def run_linear_regression_e2e(full_df) -> dict:
+    X_train, X_test, y_train, y_test = split_data_append_lagged_features(full_df)
+    linear_reg = run_linear_regression(X_train, y_train, X_test, y_test)
+
+    # Make predictions on the testing data
+    y_pred_lr = linear_reg.predict(X_test)
+
+    # Evaluate the model
+    lr_results = run_model_evaluation(y_test, y_pred_lr)
+
+    return lr_results

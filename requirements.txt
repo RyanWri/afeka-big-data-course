@@ -4,3 +4,5 @@ pyclean
 jupyter
 numpy
 pandas
+pillow
+requests

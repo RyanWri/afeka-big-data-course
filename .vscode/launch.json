@@ -9,20 +9,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}",
-            "env": {"PYTHONPATH": "${cwd}"
-            }
-        },
-        {
-            "name": "Python jupyter",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${file}",
-            "console": "externalTerminal",
-            "cwd": "${workspaceFolder}",
-            "env": {"PYTHONPATH": "${cwd}"
-            }
+            "console": "integratedTerminal"
         }
     ]
 }

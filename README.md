@@ -23,3 +23,4 @@ This project demonstrates a Proof of Concept (POC) for performing **image super-
  - please create virtual environment
  - install requirments.txt
  - entry point is src/main.py
+

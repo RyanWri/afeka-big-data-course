@@ -7,3 +7,6 @@ pandas
 pillow
 requests
 diagrams
+torch
+torchvision
+scikit-image

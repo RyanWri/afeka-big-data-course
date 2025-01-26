@@ -9,7 +9,4 @@ requests
 diagrams
 torch
 torchvision
-transformers
-datasets
-diffusers
-accelerate
+scikit-image

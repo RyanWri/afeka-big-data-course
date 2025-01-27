@@ -37,3 +37,12 @@ def evaluate_image_quality(original_image_path, super_resolved_image_path):
     ssim = calculate_ssim(original_image, super_resolved_image, data_range=255)
 
     return {"PSNR": psnr, "SSIM": ssim}
+
+
+if __name__ == "__main__":
+    image_id = "grayscale_002.jpg"
+    original_image_path = f"/home/ran/datasets/spark-picsum-images//HR/{image_id}"
+    super_resolved_image_path = f"/home/ran/datasets/spark-picsum-images/SR/{image_id}"
+    result = evaluate_image_quality(original_image_path, super_resolved_image_path)
+    for k, v in result.items():
+        print(f"{k}: {v}")

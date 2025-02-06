@@ -90,10 +90,10 @@ def super_resolve_udf(patch_vector):
 
 
 if __name__ == "__main__":
-    # Configuration
-    local_image_path = (
-        "/home/ran/datasets/spark-picsum-images/001.jpg"  # Grayscale image
-    )
+    # const
+    dataset_path = "/home/ran/datasets/spark-picsum-images"
+    image_id = "grayscale_002.jpg"
+    local_image_path = f"{dataset_path}/LR/{image_id}"
     model_path = (
         "/home/ran/Documents/afeka/big-data/models/fsrcnn_x2-T91-f791f07f.pth.tar"
     )
@@ -136,7 +136,6 @@ if __name__ == "__main__":
     )
 
     # Step 5: Save the super-resolved image
-    model_name = "fsrcnn"
-    output_image = f"{model_name}-super-resolved-image-x{upscale_factor}.jpg"
+    output_image = f"{dataset_path}/SR/{image_id}"
     sr_image.save(output_image)
     print(f"Super-resolved image saved as {output_image}.")

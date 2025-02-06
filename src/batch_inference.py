@@ -92,7 +92,7 @@ def super_resolve_udf(patch_vector):
 if __name__ == "__main__":
     # const
     dataset_path = "/home/ran/datasets/spark-picsum-images"
-    image_id = "grayscale_002.jpg"
+    image_id = "grayscale_003.jpg"
     local_image_path = f"{dataset_path}/LR/{image_id}"
     model_path = (
         "/home/ran/Documents/afeka/big-data/models/fsrcnn_x2-T91-f791f07f.pth.tar"

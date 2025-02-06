@@ -1,0 +1,13 @@
+dataset:
+  path: "/home/ran/datasets/spark-picsum-images"
+  low_resolution_dir: "/home/ran/datasets/spark-picsum-images/LR"
+  super_resolved_dir: "/home/ran/datasets/spark-picsum-images/SR"
+
+processing:
+  model_path: "/home/ran/Documents/afeka/big-data/models/fsrcnn_x2-T91-f791f07f.pth.tar"
+  patch_size: 16
+  upscale_factor: 2
+
+paths:
+  original_image: grayscale_003.jpg
+  output_image: grayscale_003.jpg

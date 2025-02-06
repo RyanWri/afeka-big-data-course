@@ -5,8 +5,16 @@ import threading
 from PIL import Image
 from confluent_kafka import Consumer
 
+
 class ImageKafkaConsumer(threading.Thread):
-    def __init__(self, kafka_config, topic, consume_timer=20, high_res_dir="high-resolution", low_res_dir="low-resolution"):
+    def __init__(
+        self,
+        kafka_config,
+        topic,
+        consume_timer=20,
+        high_res_dir="high-resolution",
+        low_res_dir="low-resolution",
+    ):
         super().__init__()
         self.consumer = Consumer(kafka_config)
         self.topic = topic
@@ -29,10 +37,14 @@ class ImageKafkaConsumer(threading.Thread):
         expected_width, expected_height = original_width // 2, original_height // 2
 
         if (downscaled_width, downscaled_height) == (expected_width, expected_height):
-            print(f"Valid shape after downscaling: {original_width}x{original_height} → {downscaled_width}x{downscaled_height}")
+            print(
+                f"Valid shape after downscaling: {original_width}x{original_height} → {downscaled_width}x{downscaled_height}"
+            )
             return True
         else:
-            print(f"Invalid shape after downscaling! Expected {expected_width}x{expected_height} but got {downscaled_width}x{downscaled_height}")
+            print(
+                f"Invalid shape after downscaling! Expected {expected_width}x{expected_height} but got {downscaled_width}x{downscaled_height}"
+            )
             return False
 
     def save_images(self, image_data, image_index):
@@ -47,7 +59,7 @@ class ImageKafkaConsumer(threading.Thread):
 
         # Validate that the downscaled image is exactly half the original
         if not self.validate_downscaled_image(image, image_resized):
-            print(f"Skipping save due to incorrect downscaling!")
+            print("Skipping save due to incorrect downscaling!")
             return  # Skip saving invalid images
 
         # Save original image
@@ -76,7 +88,9 @@ class ImageKafkaConsumer(threading.Thread):
                 # Save images (original + downscaled)
                 self.save_images(image_data, image_index)
                 image_index += 1
-            time.sleep(self.consume_timer) # Consume images from Kafka every few seconds (20 by default).
+            time.sleep(
+                self.consume_timer
+            )  # Consume images from Kafka every few seconds (20 by default).
 
     def stop(self):
         """Stop the consumer thread gracefully."""

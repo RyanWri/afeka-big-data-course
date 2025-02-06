@@ -5,13 +5,13 @@ from src.ImageKafkaProducer import ImageKafkaProducer
 if __name__ == "__main__":
     kafka_config_producer = {
         "bootstrap.servers": "localhost:9092",
-        "client.id": "image-producer"
+        "client.id": "image-producer",
     }
 
     kafka_config_consumer = {
         "bootstrap.servers": "localhost:9092",
         "group.id": "image-consumer-group",
-        "auto.offset.reset": "earliest"
+        "auto.offset.reset": "earliest",
     }
 
     topic_name = "image-topic"

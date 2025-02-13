@@ -1,6 +1,34 @@
+import os
 import numpy as np
 from PIL import Image
 from pyspark.ml.linalg import DenseVector
+
+
+def extract_patches_spark(image_path, patch_size):
+    """
+    Distributed function: Each worker loads an image and extracts patches.
+    Returns: List of (file_name, row_index, col_index, vector)
+    """
+    file_name = os.path.basename(image_path)
+    image = Image.open(image_path).convert("L")  # Grayscale
+    width, height = image.size
+    patches = []
+
+    for row in range(0, height, patch_size):
+        for col in range(0, width, patch_size):
+            box = (col, row, col + patch_size, row + patch_size)
+            patch = image.crop(box)
+            patch_array = np.array(patch).astype(np.float32) / 255.0  # Normalize
+            patches.append(
+                (
+                    file_name,
+                    row // patch_size,
+                    col // patch_size,
+                    patch_array.flatten().tolist(),
+                )
+            )
+
+    return patches
 
 
 def image_to_patches(image_path, patch_size):

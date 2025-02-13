@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     # Step 5: Save Final Image
     output_image_path = os.path.join(
-        prime_service["dataset"]["super_resolved_dir"],
+        prime_service["dataset"]["super_resolution_dir"],
         prime_service["paths"]["output_image"],
     )
     sr_image.save(output_image_path)

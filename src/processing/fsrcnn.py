@@ -21,6 +21,18 @@ import torch
 from torch import nn
 
 
+def load_fsrcnn_model(upscale_factor, model_path):
+    """
+    Loads the FSRCNN model from a checkpoint.
+    """
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = FSRCNN(upscale_factor=upscale_factor)
+    checkpoint = torch.load(model_path, map_location=device, weights_only=True)
+    model.load_state_dict(checkpoint["state_dict"])
+    model.eval()
+    return model
+
+
 class FSRCNN(nn.Module):
     """
 

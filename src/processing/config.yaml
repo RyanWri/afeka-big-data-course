@@ -1,10 +1,14 @@
 dataset:
   path: "/home/ran/datasets/spark-picsum-images"
   low_resolution_dir: "/home/ran/datasets/spark-picsum-images/LR"
-  super_resolution_dir: "/home/ran/datasets/spark-picsum-images/SR"
+  patches_dir: "/home/ran/datasets/spark-picsum-images/LR-Patches"
+  inference_result_dir: "/home/ran/datasets/spark-picsum-images/SR-Patches"
+  reconstructed_images_dir: "/home/ran/datasets/spark-picsum-images/SR"
+  original_image_height: 64
+  original_image_width: 64
 
 processing:
-  model_path: "/home/ran/Documents/afeka/big-data/models/fsrcnn_x2-T91-f791f07f.pth.tar"
+  model_path: "src/processing/fsrcnn_x2-T91-f791f07f.pth.tar"
   patch_size: 16
   upscale_factor: 2
 

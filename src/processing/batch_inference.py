@@ -49,6 +49,9 @@ if __name__ == "__main__":
         "inference_result_dir"
     ]  # output directory for inference results
 
+    if not os.path.exists(patches_output_path):
+        os.makedirs(patches_output_path)
+
     # Create Spark Session
     spark = SparkSession.builder.appName("BatchInferenceOnPatches").getOrCreate()
     sc = spark.sparkContext

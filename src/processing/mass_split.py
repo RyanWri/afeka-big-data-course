@@ -2,6 +2,7 @@ import os
 from pyspark.sql import SparkSession
 from PIL import Image
 import numpy as np
+import yaml
 
 
 def extract_patches_spark(image_path, patch_size):
@@ -36,14 +37,16 @@ if __name__ == "__main__":
     spark = SparkSession.builder.appName("ImagePatchExtraction").getOrCreate()
     sc = spark.sparkContext
 
+    with open("src/processing/config.yaml", "r") as f:
+        config = yaml.safe_load(f)
+
     # Parameters – adjust these as needed.
-    input_folder = (
-        "/home/ran/datasets/spark-picsum-images/LR"  # Folder containing the image files
-    )
-    output_path = (
-        "/home/ran/datasets/spark-picsum-images/LR-Patches"  # Where to save the patches
-    )
-    patch_size = 16  # Size of each patch (in pixels)
+    input_folder = config["dataset"]["low_resolution_dir"]
+    patches_path = config["dataset"]["patches_dir"]
+    if not os.path.exists(patches_path):
+        os.makedirs(patches_path)
+
+    patch_size = config["processing"]["patch_size"]  # Size of each patch (in pixels)
 
     # List image files in the input folder. You can add or remove extensions as needed.
     image_extensions = (".png", ".jpg", ".jpeg", ".bmp", ".tiff")
@@ -76,7 +79,7 @@ if __name__ == "__main__":
 
     # Save the patches DataFrame to disk.
     # Here we use Parquet, but you could change this to CSV or another format if desired.
-    patches_df.write.mode("overwrite").parquet(output_path)
-    print(f"Patches saved to {output_path}")
+    patches_df.write.mode("overwrite").parquet(patches_path)
+    print(f"Patches saved to {patches_path}")
 
     spark.stop()

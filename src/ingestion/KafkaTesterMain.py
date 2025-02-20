@@ -1,6 +1,6 @@
 import time
-from src.ImageKafkaConsumer import ImageKafkaConsumer
-from src.ImageKafkaProducer import ImageKafkaProducer
+from src.ingestion.ImageKafkaConsumer import ImageKafkaConsumer
+from src.ingestion.ImageKafkaProducer import ImageKafkaProducer
 
 if __name__ == "__main__":
     kafka_config_producer = {

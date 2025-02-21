@@ -84,6 +84,7 @@ def main(spark):
             reconstructed_images_dir, image_id
         )
         reconstructed_img.save(output_path)
+        os.fsync(os.open(output_path, os.O_RDONLY))
         return output_path
 
     # Register the UDF. It takes image_id and patches and returns the output file path.

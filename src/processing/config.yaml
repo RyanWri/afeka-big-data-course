@@ -1,9 +1,9 @@
 dataset:
-  path: "/home/linuxu/ben/Final Project/"
-  low_resolution_dir: "/home/linuxu/ben/Final Project/LR"
-  patches_dir: "/home/linuxu/ben/Final Project/LR-Patches"
-  inference_result_dir: "/home/linuxu/ben/Final Project/SR-Patches"
-  reconstructed_images_dir: "/home/linuxu/ben/Final Project/SR"
+  path: "/home/linuxu/ben/afeka-big-data-course"
+  low_resolution_dir: "/home/linuxu/ben/afeka-big-data-course/LR"
+  patches_dir: "/home/linuxu/ben/afeka-big-data-course/LR-Patches"
+  inference_result_dir: "/home/linuxu/ben/afeka-big-data-course/SR-Patches"
+  reconstructed_images_dir: "/home/linuxu/ben/afeka-big-data-course/SR"
   original_image_height: 64
   original_image_width: 64
 

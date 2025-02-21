@@ -64,6 +64,8 @@ class ImageKafkaConsumer(threading.Thread):
         low_res_path = os.path.join(self.low_res_dir, f"image_{image_index}.jpg")
         image_resized.save(low_res_path, "JPEG")
         print(f"Saved low-resolution image: {low_res_path}")
+        os.fsync(os.open(high_res_path, os.O_RDONLY))
+        os.fsync(os.open(low_res_path, os.O_RDONLY))
 
     def run(self):
         """Thread execution loop: Poll for Kafka messages and save images."""

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Quality Evaluation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .image-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .image-pair {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 300px;
+        }
+        img {
+            width: 250px;
+            height: 250px;
+            object-fit: contain;
+            border: 2px solid black;
+            margin-bottom: 5px;
+        }
+        .metrics {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+<script>
+    function fetchResults() {
+        fetch('/latest_results')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('status').innerText = "No images found.";
+                    return;
+                }
+
+                let container = document.getElementById("image-grid");
+                container.innerHTML = "";
+
+                data.forEach(imagePair => {
+                    let pairDiv = document.createElement("div");
+                    pairDiv.className = "image-pair";
+
+                    let originalTitle = document.createElement("h3");
+                    originalTitle.innerText = "Original Image";
+
+                    let originalImg = document.createElement("img");
+                    originalImg.src = imagePair.original_image;
+                    originalImg.alt = "Original Image";
+
+                    let superResTitle = document.createElement("h3");
+                    superResTitle.innerText = "Super-Resolved Image";
+
+                    let superResImg = document.createElement("img");
+                    superResImg.src = imagePair.super_res_image;
+                    superResImg.alt = "Super Resolved Image";
+
+                    let metrics = document.createElement("p");
+                    metrics.innerHTML = `PSNR: ${imagePair.psnr} | SSIM: ${imagePair.ssim}`;
+
+                    pairDiv.appendChild(originalTitle);
+                    pairDiv.appendChild(originalImg);
+                    pairDiv.appendChild(superResTitle);
+                    pairDiv.appendChild(superResImg);
+                    pairDiv.appendChild(metrics);
+
+                    container.appendChild(pairDiv);
+                });
+
+                document.getElementById('status').innerText = "Updated successfully!";
+            })
+            .catch(error => {
+                console.error("Error fetching results:", error);
+                document.getElementById('status').innerText = "Failed to fetch results.";
+            });
+    }
+
+    setInterval(fetchResults, 90000);
+    window.onload = fetchResults;
+</script>
+</head>
+<body>
+    <h1>Image Quality Evaluation</h1>
+
+    <div id="image-grid" class="image-grid"></div>
+
+    <p id="status">Fetching results...</p>
+</body>
+</html>

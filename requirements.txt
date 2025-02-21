@@ -5,10 +5,10 @@ pyspark==3.3.0
 ruff
 pyclean
 jupyter
-numpy~=1.26.4
+numpy==1.26.4
 pandas
-pillow~=11.1.0
-requests~=2.32.3
-diagrams~=0.24.1
-scikit-image~=0.24.0
-confluent-kafka~=2.8.0
+pillow==11.1.0
+requests==2.32.3
+diagrams==0.24.1
+scikit-image==0.24.0
+confluent-kafka==2.8.0

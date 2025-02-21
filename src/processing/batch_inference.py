@@ -30,7 +30,7 @@ def super_resolve_patch(patch_vector, model_broadcast, patch_size):
     return DenseVector(sr_patch_array.flatten())
 
 
-if __name__ == "__main__":
+def main(sc, spark):
     # Load configuration
     with open("src/processing/config.yaml", "r") as file:
         config = yaml.safe_load(file)
@@ -53,8 +53,8 @@ if __name__ == "__main__":
         os.makedirs(patches_output_path)
 
     # Create Spark Session
-    spark = SparkSession.builder.appName("BatchInferenceOnPatches").getOrCreate()
-    sc = spark.sparkContext
+    # spark = SparkSession.builder.appName("BatchInferenceOnPatches").getOrCreate()
+    # sc = spark.sparkContext
 
     # Load and broadcast the FSRCNN model
     model = load_fsrcnn_model(upscale_factor, model_path)
@@ -82,4 +82,4 @@ if __name__ == "__main__":
     result_df.write.mode("overwrite").parquet(patches_output_path)
     print(f"Inference results saved at {patches_output_path}")
 
-    spark.stop()
+    # spark.stop()

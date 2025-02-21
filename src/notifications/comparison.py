@@ -2,20 +2,23 @@ import numpy as np
 from skimage.metrics import peak_signal_noise_ratio as calculate_psnr
 from skimage.metrics import structural_similarity as calculate_ssim
 from PIL import Image
+import os
 
 
-def evaluate_image_quality(original_image_path, super_resolved_image_path):
+def evaluate_image_quality(image_name):
     """
     Calculates PSNR and SSIM between the original high-resolution image
     and the super-resolved image.
 
     Args:
-        original_image_path (str): Path to the original high-resolution image.
-        super_resolved_image_path (str): Path to the super-resolved image.
+        image_name (str): The image name.
 
     Returns:
         dict: Dictionary containing PSNR and SSIM values.
     """
+    cwd = os.getcwd()
+    original_image_path = f"{cwd}/HR/{image_name}"
+    super_resolved_image_path = f"{cwd}/SR/{image_name}"
     # Load images as grayscale arrays
     original_image = np.array(
         Image.open(original_image_path).convert("L"), dtype=np.float32
@@ -39,10 +42,8 @@ def evaluate_image_quality(original_image_path, super_resolved_image_path):
     return {"PSNR": psnr, "SSIM": ssim}
 
 
-if __name__ == "__main__":
-    image_id = "grayscale_002.jpg"
-    original_image_path = f"/home/ran/datasets/spark-picsum-images//HR/{image_id}"
-    super_resolved_image_path = f"/home/ran/datasets/spark-picsum-images/SR/{image_id}"
-    result = evaluate_image_quality(original_image_path, super_resolved_image_path)
+def main(image_name):
+    print(f"Evaluating metrics on image: {image_name}")
+    result = evaluate_image_quality(image_name)
     for k, v in result.items():
         print(f"{k}: {v}")

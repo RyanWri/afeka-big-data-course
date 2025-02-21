@@ -30,7 +30,7 @@ def patches_to_image(patches, original_size, patch_size, upscale_factor):
     return sr_image
 
 
-if __name__ == "__main__":
+def main(spark):
     # Load configuration parameters
     with open("src/processing/config.yaml", "r") as f:
         config = yaml.safe_load(f)
@@ -52,9 +52,6 @@ if __name__ == "__main__":
     # Ensure output directory exists
     if not os.path.exists(reconstructed_images_dir):
         os.makedirs(reconstructed_images_dir)
-
-    # Create Spark session
-    spark = SparkSession.builder.appName("ReconstructImages").getOrCreate()
 
     # Read the inference result DataFrame.
     # Expected schema: image_id, row_index, col_index, patch_value (DenseVector)
@@ -84,7 +81,7 @@ if __name__ == "__main__":
 
         # Save the reconstructed image using the image_id.
         output_path = os.path.join(
-            reconstructed_images_dir, f"{image_id}_reconstructed.png"
+            reconstructed_images_dir, image_id
         )
         reconstructed_img.save(output_path)
         return output_path
@@ -100,5 +97,3 @@ if __name__ == "__main__":
     # Optionally, collect and print the output paths.
     for row in result_df.select("image_id", "output_path").collect():
         print(f"Image {row['image_id']} reconstructed at {row['output_path']}")
-
-    spark.stop()

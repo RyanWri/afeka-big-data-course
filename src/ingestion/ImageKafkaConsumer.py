@@ -7,14 +7,7 @@ from confluent_kafka import Consumer
 
 
 class ImageKafkaConsumer(threading.Thread):
-    def __init__(
-        self,
-        kafka_config,
-        topic,
-        consume_timer=20,
-        high_res_dir="high-resolution",
-        low_res_dir="low-resolution",
-    ):
+    def __init__(self, kafka_config, topic, consume_timer=20, high_res_dir="HR", low_res_dir="LR"):
         super().__init__()
         self.consumer = Consumer(kafka_config)
         self.topic = topic

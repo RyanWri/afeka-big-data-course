@@ -1,54 +1,52 @@
 import os
-from pyspark.sql import SparkSession
-from PIL import Image
 import numpy as np
 import yaml
+from PIL import Image
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, ArrayType, FloatType
+from pyspark.sql import SQLContext, Row
+from pyspark import SparkContext
 
-
-def extract_patches_spark(image_path, patch_size):
+def extract_patches(image_path, patch_size):
     """
-    Distributed function: Each worker loads an image and extracts patches.
-    Returns: List of (file_name, row_index, col_index, vector)
+    Extract patches from a single image.
+    Returns a list of (image_id, row_index, col_index, patch_value)
     """
-    file_name = os.path.basename(image_path)
-    image = Image.open(image_path).convert("L")  # Grayscale
-    width, height = image.size
-    patches = []
+    try:
+        file_name = os.path.basename(image_path)
+        image = Image.open(image_path).convert("L")  # Convert to grayscale
+        width, height = image.size
+        patches = []
 
-    for row in range(0, height, patch_size):
-        for col in range(0, width, patch_size):
-            box = (col, row, col + patch_size, row + patch_size)
-            patch = image.crop(box)
-            patch_array = np.array(patch).astype(np.float32) / 255.0  # Normalize
-            patches.append(
-                (
-                    file_name,
-                    row // patch_size,
-                    col // patch_size,
-                    patch_array.flatten().tolist(),
-                )
-            )
+        for row in range(0, height, patch_size):
+            for col in range(0, width, patch_size):
+                box = (col, row, col + patch_size, row + patch_size)
+                patch = image.crop(box)
+                patch_array = np.array(patch).astype(np.float32) / 255.0  # Normalize
+                patches.append((file_name, row // patch_size, col // patch_size, patch_array.flatten().tolist()))
 
-    return patches
+        return patches
+    except Exception as e:
+        print(f"Error processing {image_path}: {e}")
+        return []  # Return an empty list if the image fails
 
+def main(sc, sqlContext):
+    # Initialize Spark Session
+    # sc = SparkContext()
 
-if __name__ == "__main__":
-    # Create Spark Session
-    spark = SparkSession.builder.appName("ImagePatchExtraction").getOrCreate()
-    sc = spark.sparkContext
-
+    # Load Configuration
     with open("src/processing/config.yaml", "r") as f:
         config = yaml.safe_load(f)
 
-    # Parameters – adjust these as needed.
+    # Paths
     input_folder = config["dataset"]["low_resolution_dir"]
     patches_path = config["dataset"]["patches_dir"]
+
     if not os.path.exists(patches_path):
         os.makedirs(patches_path)
 
-    patch_size = config["processing"]["patch_size"]  # Size of each patch (in pixels)
+    patch_size = config["processing"]["patch_size"]  # Patch size in pixels
 
-    # List image files in the input folder. You can add or remove extensions as needed.
+    # Find all images
     image_extensions = (".png", ".jpg", ".jpeg", ".bmp", ".tiff")
     image_paths = [
         os.path.join(input_folder, fname)
@@ -58,28 +56,36 @@ if __name__ == "__main__":
 
     if not image_paths:
         print("No images found in the input folder:", input_folder)
-        spark.stop()
+        # spark.stop()
         exit(1)
 
-    # Parallelize the list of image paths.
-    image_rdd = sc.parallelize(image_paths)
+    # **STEP 1: Load all images & extract patches BEFORE parallelization**
+    all_patches = []
+    for image_path in image_paths:
+        all_patches.extend(extract_patches(image_path, patch_size))
 
-    # For each image, extract patches using the provided function.
-    # Each call to extract_patches_spark returns a list of tuples:
-    # (image_id, row_index, col_index, patch_value)
-    patches_rdd = image_rdd.flatMap(
-        lambda image_path: extract_patches_spark(image_path, patch_size)
-    )
+    if not all_patches:
+        print("No patches extracted. Exiting...")
+        # spark.stop()
+        exit(1)
 
-    # Define a schema for the DataFrame.
-    schema = ["image_id", "row_index", "col_index", "patch_value"]
+    # **STEP 2: Parallelize extracted patches as small rows (not full images)**
+    # patches_rdd = sc.parallelize(all_patches)
 
-    # Create a DataFrame from the RDD of patches.
-    patches_df = spark.createDataFrame(patches_rdd, schema=schema)
+    # **STEP 3: Convert RDD to DataFrame**
+    # schema = ["image_id", "row_index", "col_index", "patch_value"]
+    schema = StructType([
+        StructField("image_id", StringType(), True),
+        StructField("row_index", IntegerType(), True),
+        StructField("col_index", IntegerType(), True),
+        StructField("patch_value", ArrayType(FloatType()), True)  # Explicitly define as an array of floats
+    ])
+    patches_rows = [Row(image_id=img, row_index=row, col_index=col, patch_value=patch)
+                    for img, row, col, patch in all_patches]
+    patches_df = sqlContext.createDataFrame(all_patches, schema)
 
-    # Save the patches DataFrame to disk.
-    # Here we use Parquet, but you could change this to CSV or another format if desired.
+    # **STEP 4: Save as Parquet**
     patches_df.write.mode("overwrite").parquet(patches_path)
     print(f"Patches saved to {patches_path}")
 
-    spark.stop()
+    # spark.stop()

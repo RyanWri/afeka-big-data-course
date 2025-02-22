@@ -29,10 +29,7 @@ def extract_patches(image_path, patch_size):
         print(f"Error processing {image_path}: {e}")
         return []  # Return an empty list if the image fails
 
-def main(sc, sqlContext):
-    # Initialize Spark Session
-    # sc = SparkContext()
-
+def main(sqlContext):
     # Load Configuration
     with open("src/processing/config.yaml", "r") as f:
         config = yaml.safe_load(f)
@@ -56,8 +53,7 @@ def main(sc, sqlContext):
 
     if not image_paths:
         print("No images found in the input folder:", input_folder)
-        # spark.stop()
-        exit(1)
+        raise ValueError(f"No images found in the input folder: {input_folder}")
 
     # **STEP 1: Load all images & extract patches BEFORE parallelization**
     all_patches = []
@@ -66,26 +62,17 @@ def main(sc, sqlContext):
 
     if not all_patches:
         print("No patches extracted. Exiting...")
-        # spark.stop()
-        exit(1)
+        raise ValueError("No patches extracted. Exiting...")
 
-    # **STEP 2: Parallelize extracted patches as small rows (not full images)**
-    # patches_rdd = sc.parallelize(all_patches)
-
-    # **STEP 3: Convert RDD to DataFrame**
-    # schema = ["image_id", "row_index", "col_index", "patch_value"]
+    # **STEP 2: Convert to DataFrame**
     schema = StructType([
         StructField("image_id", StringType(), True),
         StructField("row_index", IntegerType(), True),
         StructField("col_index", IntegerType(), True),
         StructField("patch_value", ArrayType(FloatType()), True)  # Explicitly define as an array of floats
     ])
-    patches_rows = [Row(image_id=img, row_index=row, col_index=col, patch_value=patch)
-                    for img, row, col, patch in all_patches]
     patches_df = sqlContext.createDataFrame(all_patches, schema)
 
-    # **STEP 4: Save as Parquet**
+    # **STEP 3: Save as Parquet**
     patches_df.write.mode("overwrite").parquet(patches_path)
     print(f"Patches saved to {patches_path}")
-
-    # spark.stop()

@@ -10,7 +10,7 @@ def main(spark, sc, sqlContext):
     2. Run inference on patches
     3. Reconstruct images
     """
-    msmain(sc, sqlContext)
+    msmain(sqlContext)
     bmain(sc, spark)
     mrmain(spark)
 

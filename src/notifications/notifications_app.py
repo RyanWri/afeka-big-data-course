@@ -1,10 +1,16 @@
-from flask import Flask, render_template, jsonify, send_from_directory
 import os
-from comparison import evaluate_image_quality  # Import your function
+import sys
+import threading
+from sympy import false
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+from flask import Flask, render_template, jsonify, send_from_directory
+from src.notifications.comparison import evaluate_image_quality  # Import your function
+
 
 
 BASE_DIR = os.getcwd()
-
 app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"))
 
 # Define paths for images
@@ -41,38 +47,17 @@ def index():
     """Render the main HTML page."""
     return render_template("index.html")
 
-
-# @app.route('/latest_results')
-# def latest_results():
-#     """API endpoint that returns the latest images and their metrics."""
-#     image_name = get_latest_image()
-#
-#     if not image_name:
-#         return jsonify({"error": "No images found"}), 404
-#
-#     # Evaluate PSNR and SSIM using your function
-#     metrics = evaluate_image_quality(image_name)
-#
-#     return jsonify({
-#         "original_image": f"/HR/{image_name}",
-#         "super_res_image": f"/SR/{image_name}",
-#         "psnr": round(metrics["PSNR"], 2),
-#         "ssim": round(metrics["SSIM"], 4)
-#     })
-
 @app.route('/latest_results')
 def latest_results():
     """API endpoint that returns the latest images and their metrics."""
-    hr_images = get_latest_images(ORIGINAL_IMAGES_DIR)
     sr_images = get_latest_images(SUPER_RES_IMAGES_DIR)
+    hr_images = [f.replace("SR", "HR") for f in sr_images]
 
     if not hr_images or not sr_images:
         return jsonify({"error": "No images found"}), 404
 
     results = []
     for hr, sr in zip(hr_images, sr_images):
-        print(hr)
-        print(sr)
         # Evaluate PSNR and SSIM using your function
         metrics = evaluate_image_quality(hr)
         results.append({
@@ -92,6 +77,10 @@ def serve_hr(filename):
 def serve_sr(filename):
     return send_from_directory(SUPER_RES_IMAGES_DIR, filename)
 
+def run_app():
+    app.run(debug=false, use_reloader=false, port=9000)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+def main():
+    thread = threading.Thread(target=run_app)
+    thread.daemon = True
+    thread.start()

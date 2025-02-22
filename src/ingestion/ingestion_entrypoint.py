@@ -19,15 +19,12 @@ def run_kafka_threads(produce_timer=30, consume_timer=60):
 
     # Start Producer Thread
     producer_thread = ImageKafkaProducer(kafka_config_producer, topic_name, produce_timer=produce_timer)
+    producer_thread.daemon = True
     producer_thread.start()
 
     # Start Consumer Thread
     consumer_thread = ImageKafkaConsumer(kafka_config_consumer, topic_name, consume_timer=consume_timer)
+    consumer_thread.daemon = True
     consumer_thread.start()
 
-# def stop_kafka_threads():
-#     print("Stopping Kafka producer and consumer")
-#     producer_thread.stop()
-#     consumer_thread.stop()
-#     print("Kafka producer and consumer Stopped")
 

@@ -6,12 +6,12 @@ DEFAULT_TOPIC="image-topic"
 
 echo "Starting Zookeeper service"
 $KAFKA_BIN_DIR/zookeeper-server-start.sh $KAFKA_BIN_DIR/../config/zookeeper.properties > /dev/null 2>&1 &
-sleep 2
+sleep 5
 echo "Zookeeper service started"
 
 echo "Starting Kafka server"
 $KAFKA_BIN_DIR/kafka-server-start.sh $KAFKA_BIN_DIR/../config/server.properties > /dev/null 2>&1 &
-sleep 2
+sleep 5
 echo "Kafka server started"
 
 echo "Creating topic: $topic"

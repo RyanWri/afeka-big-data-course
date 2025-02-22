@@ -37,8 +37,10 @@ Below is a high-level view of the complete architecture, illustrating how images
    - Writes processed images back to object storage.
 
 3. **Notifications Cluster**  
-   - Publishes an event (e.g., via Kafka or a REST callback) once images are processed.  
+   - Publishes an event via REST callback once images are processed.  
    - Notifies downstream consumers or microservices that the new, high-resolution images are available.
+   - The notification service is an independent Flask app.
+   - The notification service visualizes the processed images and displays the evaluations.
 
 ---
 
@@ -49,6 +51,7 @@ Below is a high-level view of the complete architecture, illustrating how images
 - **Producer Service**: Retrieves images from an external API (e.g., [Picsum](https://picsum.photos/) or any custom data source).  
 - **Kafka Topics**: Act as a buffer and reliable transport mechanism for high volumes of image references.  
 - **Consumer Service**: Reads messages from Kafka, downloads the images, and stores them in an object storage bucket (such as S3) for later processing.
+- **Threading**: For this project we decided to use threading for the Kafka producer and consumer to allow concurrent processing and high throughput.
 
 This decouples the image acquisition rate from the downstream processing speed.
 
@@ -58,6 +61,8 @@ This decouples the image acquisition rate from the downstream processing speed.
 
 ![Processing Cluster](architecture/images/processing_cluster.png)
 
+**Prerequisite**: We are running pyspark through jupyter notebook and we assume that the spark context and sqlcontext are well defined,
+in a real world scenario we will prefer to use spark session and have full control over the spark session itself. 
 The processing cluster orchestrates the Spark ETL pipeline for super-resolution:
 
 1. **Fetch Batch**: Reads raw images from the S3 input bucket (or local storage, for a proof-of-concept).
@@ -79,7 +84,9 @@ The processing cluster orchestrates the Spark ETL pipeline for super-resolution:
 
 ## Notifications Cluster
 
-Once the high-resolution images are produced, the Notifications Cluster publishes a message (e.g., to Kafka or via a REST API) to signal that the images are ready. This event can trigger further pipelines, downstream analytics, or updates to front-end services.
+Once the super-resolution images are produced, the Notifications Cluster reads the images via a REST API and displays the images that are ready. This event will trigger an update for the visualized images.
+The notifications service displays the last 10 images (can be changed via code) and the evaluated metrics.
+The notifications service refreshes every 90 seconds (also modifiable).
 
 ---
 
@@ -111,17 +118,20 @@ We use **[FSRCNN (Fast Super-Resolution Convolutional Neural Network)](https://g
    - Group patches by `image_id` and reconstruct high-resolution images.
    - Save final images (PNG format) to the output bucket.
 5. **Notification**  
-   - Trigger a notification or event to indicate the images are ready.
+   - Display the created super-resolution images alongside the high-resolution images including the evaluated metrics.
 
 ---
 
 ## Prerequisites
 
-- **Python**: Version 3.9–3.11 (avoid newer versions for compatibility).
-- **Apache Spark**: Tested on Spark 3.x.
+- **Python**: Version 3.9 (avoid newer versions for compatibility).
+- **Apache Spark**: Tested on Spark 3.3.0.
 - **PyTorch**: Required for FSRCNN.
 - **PySpark**: For running Spark jobs in Python.
 - **Pillow (PIL)**: For image manipulation.
+- **Jupyter Notebook**: Currently we run pyspark through Jupyter Notebook and assume that the spark context and sqlcontext are automatically created.
+- **Flask**: Must run as a separate thread, otherwise it is blocking.
+- **Confluent Kafka**: Must be installed for the Kafka producer and consumer services.
 
 Ensure that all required Python libraries are listed in your [requirements.txt](requirements.txt).
 
@@ -129,24 +139,34 @@ Ensure that all required Python libraries are listed in your [requirements.txt](
 
 ## Running the Pipeline
 
-1. **Create a Python Virtual Environment** (recommended):
-
+**Run everything from root project directory**
+1. **Run Kafka Start Script** (recommended):
+   The script starts the Zookeeper and Kafka services and creates a new topic "images-topic".
+   You might need to change the paths in the script to your desired Kafka directory location.
    ```bash
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
+   ./scripts/kafka_start.sh
 
-2. **Configure the Paths in config.yaml**:
-dataset.low_resolution_dir: Directory (or S3 path) with raw images.
-dataset.patches_dir: Output location for extracted patches.
-dataset.inference_result_dir: Output location for super-resolved patches.
-dataset.reconstructed_images_dir: Final directory for high-resolution images.
-processing.model_path: Path to your FSRCNN model checkpoint.
-processing.patch_size: Patch size used for splitting and reconstruction.
-processing.upscale_factor: The super-resolution scale factor (e.g., 2 or 4).
+2. **Configure the Paths in config.yaml** (Optional):<br>
+   **Config is created dynamically in main.**<br>
+   dataset.low_resolution_dir: Directory (or S3 path) with raw images.<br>
+   dataset.patches_dir: Output location for extracted patches.<br>
+   dataset.inference_result_dir: Output location for super-resolved patches.<br>
+   dataset.reconstructed_images_dir: Final directory for high-resolution images.<br>
+   processing.model_path: Path to your FSRCNN model checkpoint.<br>
+   processing.patch_size: Patch size used for splitting and reconstruction.<br>
+   processing.upscale_factor: The super-resolution scale factor (e.g., 2 or 4).
 
-3. **Automated Entry Point**
-To run the three Spark jobs sequentially and enforce dependencies (i.e., each step runs only if the previous one succeeds), you can use an entry point script like this: python src/processing/entrypoint.py
+
+3. **Run the Jupyter notebook main.ipynb**: 
+   The notebook will run the entire program, including ingestion cluster, processing cluster and the notification service.
+
+
+4. **Stop The Kafka Services**:
+   The script stops the Zookeeper and Kafka services.
+   You might need to change the paths in the script to your desired Kafka directory location.<br>
+   **Note that the topic will NOT be removed when the services are stopped.**
+   ```bash
+   ./scripts/kafka_stop.sh
 
 ## Contributing
 Contributions and feedback are welcome! If you have suggestions for improvements, new features, or bug fixes, please open a pull request or create an issue.

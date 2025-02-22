@@ -77,7 +77,7 @@ def serve_sr(filename):
     return send_from_directory(SUPER_RES_IMAGES_DIR, filename)
 
 def run_app():
-    app.run(debug=false, use_reloader=false, port=9000)
+    app.run(debug=False, use_reloader=False, port=9000)
 
 def main():
     thread = threading.Thread(target=run_app)
